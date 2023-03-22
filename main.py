@@ -48,6 +48,7 @@ def registracija():
     if(request.method == "POST"):
         email=request.form.get("email")
         pasword=request.form.get("psw")
+        insert_user_db(email,pasword)
     return render_template("./registracija.html")
 
 def createDB():
@@ -77,12 +78,21 @@ def createDB():
     cursor.execute(createVartotojasTableString)
 
 def insert_into_db(note):
-    global connection
+    connection=sqlite3.connect(".\\NotesDatabase.db")
     queryString="""
         INSERT INTO Sheets (Name) VALUES (?) 
     """
     cur=connection.cursor()
     cur.execute(queryString,(note,))
+    connection.commit()
+
+def insert_user_db(Email,Pasword):
+    connection=sqlite3.connect(".\\NotesDatabase.db")
+    queryString="""
+        INSERT INTO Vartotojas (Email, Pasword) VALUES (?,?) 
+    """
+    cur=connection.cursor()
+    cur.execute(queryString,(Email,Pasword))
     connection.commit()
 
 def select_from_db():
