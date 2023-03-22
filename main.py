@@ -4,7 +4,6 @@ connection=sqlite3.connect(".\\NotesDatabase.db")
 
 variable=0
 array=[]
-array1=[]
 res=[]
 
 app = Flask(__name__,static_url_path='')
@@ -46,6 +45,9 @@ def notes():
 
 @app.route("/registracija",methods=["GET","POST"])
 def registracija():
+    if(request.method == "POST"):
+        email=request.form.get("email")
+        pasword=request.form.get("psw")
     return render_template("./registracija.html")
 
 def createDB():
@@ -64,8 +66,15 @@ def createDB():
         Text TEXT,
         FOREIGN KEY (SheetId) REFERENCES Sheets(Id)
     )"""
+    createVartotojasTableString = """CREATE TABLE IF NOT EXISTS Vartotojas (
+        Id INTEGER PRIMARY KEY AUTOINCREMENT,
+        Email TEXT NOT NULL,
+        Pasword TEXT NOT NULL
+    )"""
+    
     cursor.execute(createTableString)
     cursor.execute(createNotesTableString)
+    cursor.execute(createVartotojasTableString)
 
 def insert_into_db(note):
     global connection
