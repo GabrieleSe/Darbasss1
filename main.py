@@ -1,9 +1,10 @@
 from flask import Flask, render_template, request
 import sqlite3
-connection=sqlite3.connect("C:\\Users\\1562038\\Desktop\\NotesDatabase.db")
+connection=sqlite3.connect(".\\NotesDatabase.db")
 
 variable=0
 array=[]
+array1=[]
 res=[]
 
 app = Flask(__name__,static_url_path='')
@@ -27,19 +28,25 @@ def plus_one():
 
 @app.route("/notes",methods=["GET","POST"])
 def notes():
-    
+    array_2 = select_from_db()
     if(request.method == "POST"):
         global array 
         global res
         args=request.form.get("note2")
         if(args):
             array.append(args)
+            insert_into_db(args)
             res=array[::-1]
             print(res)
-        return render_template('./notes.html', note=res)
+            
+        return render_template('./notes.html', note=select_from_db())
     else:
-        return render_template('./notes.html', note=res)
+        return render_template('./notes.html', note=select_from_db())
+    
 
+@app.route("/registracija",methods=["GET","POST"])
+def registracija():
+    return render_template("./registracija.html")
 
 def createDB():
 
@@ -60,16 +67,24 @@ def createDB():
     cursor.execute(createTableString)
     cursor.execute(createNotesTableString)
 
-def insert_into_db():
+def insert_into_db(note):
     global connection
     queryString="""
         INSERT INTO Sheets (Name) VALUES (?) 
     """
     cur=connection.cursor()
-    cur.execute(queryString,('test',))
+    cur.execute(queryString,(note,))
+    connection.commit()
 
+def select_from_db():
+    connection=sqlite3.connect(".\\NotesDatabase.db")
+    queryString="""
+        SELECT name FROM Sheets
+    """
+    cur=connection.cursor()
+    array = cur.execute(queryString).fetchall()
+    return array 
 
 if __name__ =="__main__":
     createDB()
-    insert_into_db()
     app.run(debug="true")
